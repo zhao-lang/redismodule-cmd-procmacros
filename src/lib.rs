@@ -48,7 +48,12 @@ pub fn rediscmd_doc(_attr: TokenStream, item: TokenStream) -> TokenStream {
     }
 
     // write out markdown
-    let filepath = Path::new("COMMAND_REFERENCE_GEN.md");
+    let out_dir = std::env::var_os("OUT_DIR").unwrap();
+    let filepath = Path::new(&out_dir)
+        .parent().unwrap()
+        .parent().unwrap()
+        .parent().unwrap()
+        .join("COMMAND_REFERENCE_GEN.md");
     let mut file = OpenOptions::new()
         .append(true)
         .create(true)
