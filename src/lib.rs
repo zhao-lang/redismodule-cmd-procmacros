@@ -27,7 +27,6 @@ struct Arg {
     optional: bool,
 }
 
-#[cfg(feature = "docgen")]
 #[proc_macro_attribute]
 pub fn rediscmd_doc(_attr: TokenStream, item: TokenStream) -> TokenStream {
     let mut output = String::new();
