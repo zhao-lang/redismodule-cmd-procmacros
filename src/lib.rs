@@ -6,7 +6,7 @@ use proc_macro::TokenStream;
 use syn::parse::{Parser};
 use syn::{ Expr, ItemConst, Token, punctuated};
 
-use std::fs::OpenOptions;
+use std::fs::{OpenOptions, create_dir_all, remove_file};
 use std::io::prelude::*;
 use std::path::Path;
 
@@ -28,7 +28,7 @@ struct Arg {
 }
 
 #[proc_macro_attribute]
-pub fn rediscmd_doc(_attr: TokenStream, item: TokenStream) -> TokenStream {
+pub fn rediscmd_doc(attr: TokenStream, item: TokenStream) -> TokenStream {
     let mut output = String::new();
 
     let parsed: ItemConst = syn::parse(item.clone()).unwrap();
@@ -47,13 +47,19 @@ pub fn rediscmd_doc(_attr: TokenStream, item: TokenStream) -> TokenStream {
         _ => ()
     }
 
+    let filepath = Path::new("doc").join("COMMAND_REFERENCE_GEN.md");
+
+    // delete file if first attr is passed
+    if &attr.to_string() == "clean" {
+        match remove_file(filepath.clone()) {
+            Ok(_) => (),
+            Err(e) => println!("Could not delete {:?}: {}", filepath.to_str(), e) 
+        }
+    
+    }
+    
     // write out markdown
-    let out_dir = std::env::var_os("OUT_DIR").unwrap();
-    let filepath = Path::new(&out_dir)
-        .parent().unwrap()
-        .parent().unwrap()
-        .parent().unwrap()
-        .join("COMMAND_REFERENCE_GEN.md");
+    create_dir_all("doc").unwrap();
     let mut file = OpenOptions::new()
         .append(true)
         .create(true)
